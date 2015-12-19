@@ -1,5 +1,5 @@
 Package.describe({
-  summary: "Control mergebox for publish endpoints",
+  summary: "Control mergebox of publish endpoints",
   version: '0.1.0',
   name: 'peerlibrary:control-mergebox',
   git: 'https://github.com/peerlibrary/meteor-control-mergebox.git'
