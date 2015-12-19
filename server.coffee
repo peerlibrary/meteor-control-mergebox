@@ -5,8 +5,15 @@ Meteor.publish = (name, publishFunction) ->
   originalPublish name, (args...) ->
     publish = @
 
+    disabled = false
+
+    publish.disableMergebox = ->
+      disabled = true
+
     originalAdded = publish.added
     publish.added = (collectionName, id, fields) ->
+      return originalAdded.call @, collectionName, id, fields unless disabled
+
       stringId = @_idFilter.idStringify id
 
       FiberUtils.synchronize guardObject, "#{collectionName}#{stringId}", =>
@@ -27,6 +34,8 @@ Meteor.publish = (name, publishFunction) ->
 
     originalChanged = publish.changed
     publish.changed = (collectionName, id, fields) ->
+      return originalChanged.call @, collectionName, id, fields unless disabled
+
       stringId = @_idFilter.idStringify id
 
       FiberUtils.synchronize guardObject, "#{collectionName}#{stringId}", =>
@@ -52,6 +61,8 @@ Meteor.publish = (name, publishFunction) ->
 
     originalRemoved = publish.removed
     publish.removed = (collectionName, id) ->
+      return originalRemoved.call @, collectionName, id unless disabled
+
       stringId = @_idFilter.idStringify id
 
       FiberUtils.synchronize guardObject, "#{collectionName}#{stringId}", =>

@@ -12,6 +12,8 @@ if Meteor.isServer
       TestCollection.remove selector
 
   Meteor.publish 'testPublish', ->
+    @disableMergebox()
+
     TestCollection.find().observeChanges
       added: (id, fields) =>
         @added 'testCollection', id, fields
