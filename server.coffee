@@ -12,11 +12,11 @@ Meteor.publish = (name, publishFunction) ->
 
     originalAdded = publish.added
     publish.added = (collectionName, id, fields) ->
-      return originalAdded.call @, collectionName, id, fields unless disabled
-
       stringId = @_idFilter.idStringify id
 
       FiberUtils.synchronize guardObject, "#{collectionName}#{stringId}", =>
+        return originalAdded.call @, collectionName, id, fields unless disabled
+
         collectionView = @_session.getCollectionView collectionName
 
         originalSessionDocumentView = collectionView.documents[stringId]
@@ -34,11 +34,11 @@ Meteor.publish = (name, publishFunction) ->
 
     originalChanged = publish.changed
     publish.changed = (collectionName, id, fields) ->
-      return originalChanged.call @, collectionName, id, fields unless disabled
-
       stringId = @_idFilter.idStringify id
 
       FiberUtils.synchronize guardObject, "#{collectionName}#{stringId}", =>
+        return originalChanged.call @, collectionName, id, fields unless disabled
+
         collectionView = @_session.getCollectionView collectionName
 
         originalSessionDocumentView = collectionView.documents[stringId]
@@ -61,11 +61,11 @@ Meteor.publish = (name, publishFunction) ->
 
     originalRemoved = publish.removed
     publish.removed = (collectionName, id) ->
-      return originalRemoved.call @, collectionName, id unless disabled
-
       stringId = @_idFilter.idStringify id
 
       FiberUtils.synchronize guardObject, "#{collectionName}#{stringId}", =>
+        return originalRemoved.call @, collectionName, id unless disabled
+
         collectionView = @_session.getCollectionView collectionName
 
         originalSessionDocumentView = collectionView.documents[stringId]
