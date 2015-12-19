@@ -1,6 +1,6 @@
 Package.describe({
   summary: "Disable mergebox for publish endpoints",
-  version: '0.1.2',
+  version: '0.1.0',
   name: 'peerlibrary:disable-mergebox',
   git: 'https://github.com/peerlibrary/meteor-disable-mergebox.git'
 });
