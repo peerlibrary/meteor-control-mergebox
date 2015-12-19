@@ -7,28 +7,34 @@ Meteor.publish = (name, publishFunction) ->
 
     originalAdded = publish.added
     publish.added = (collectionName, id, fields) ->
-      FiberUtils.synchronize guardObject, collectionName, =>
-        originalCollectionView = @_session.collectionViews[collectionName]
-        delete @_session.collectionViews[collectionName]
+      stringId = @_idFilter.idStringify id
+
+      FiberUtils.synchronize guardObject, "#{collectionName}#{stringId}", =>
+        collectionView = @_session.getCollectionView collectionName
+
+        originalSessionDocumentView = collectionView.documents[stringId]
+
+        # Make sure we start with a clean slate for this document ID.
+        delete collectionView.documents[stringId]
 
         try
           originalAdded.call @, collectionName, id, fields
         finally
-          if originalCollectionView
-            @_session.collectionViews[collectionName] = originalCollectionView
+          if originalSessionDocumentView
+            collectionView.documents[stringId] = originalSessionDocumentView
           else
-            delete @_session.collectionViews[collectionName]
+            delete collectionView.documents[stringId]
 
     originalChanged = publish.changed
     publish.changed = (collectionName, id, fields) ->
-      FiberUtils.synchronize guardObject, collectionName, =>
-        originalCollectionView = @_session.collectionViews[collectionName]
-        delete @_session.collectionViews[collectionName]
+      stringId = @_idFilter.idStringify id
 
-        # This creates a new collection view.
+      FiberUtils.synchronize guardObject, "#{collectionName}#{stringId}", =>
         collectionView = @_session.getCollectionView collectionName
 
-        # And an empty session document for this id.
+        originalSessionDocumentView = collectionView.documents[stringId]
+
+        # Create an empty session document for this id.
         collectionView.documents[id] = new DDPServer._SessionDocumentView()
 
         # For fields which are being cleared we have to mock some existing
@@ -39,26 +45,29 @@ Meteor.publish = (name, publishFunction) ->
         try
           originalChanged.call @, collectionName, id, fields
         finally
-          if originalCollectionView
-            @_session.collectionViews[collectionName] = originalCollectionView
+          if originalSessionDocumentView
+            collectionView.documents[stringId] = originalSessionDocumentView
           else
-            delete @_session.collectionViews[collectionName]
+            delete collectionView.documents[stringId]
 
     originalRemoved = publish.removed
     publish.removed = (collectionName, id) ->
-      FiberUtils.synchronize guardObject, collectionName, =>
-        originalCollectionView = @_session.collectionViews[collectionName]
-        delete @_session.collectionViews[collectionName]
+      stringId = @_idFilter.idStringify id
 
-        # This creates a new collection view and an empty session document for this id.
-        @_session.getCollectionView(collectionName).documents[id] = new DDPServer._SessionDocumentView()
+      FiberUtils.synchronize guardObject, "#{collectionName}#{stringId}", =>
+        collectionView = @_session.getCollectionView collectionName
+
+        originalSessionDocumentView = collectionView.documents[stringId]
+
+        # Create an empty session document for this id.
+        collectionView.documents[id] = new DDPServer._SessionDocumentView()
 
         try
           originalRemoved.call @, collectionName, id
         finally
-          if originalCollectionView
-            @_session.collectionViews[collectionName] = originalCollectionView
+          if originalSessionDocumentView
+            collectionView.documents[stringId] = originalSessionDocumentView
           else
-            delete @_session.collectionViews[collectionName]
+            delete collectionView.documents[stringId]
 
     publishFunction.apply publish, args
