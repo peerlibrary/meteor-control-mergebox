@@ -1,8 +1,8 @@
 Package.describe({
-  summary: "Disable mergebox for publish endpoints",
+  summary: "Control mergebox for publish endpoints",
   version: '0.1.0',
-  name: 'peerlibrary:disable-mergebox',
-  git: 'https://github.com/peerlibrary/meteor-disable-mergebox.git'
+  name: 'peerlibrary:control-mergebox',
+  git: 'https://github.com/peerlibrary/meteor-control-mergebox.git'
 });
 
 Package.onUse(function (api) {
@@ -37,7 +37,7 @@ Package.onTest(function (api) {
 
   // Internal dependencies.
   api.use([
-    'peerlibrary:disable-mergebox'
+    'peerlibrary:control-mergebox'
   ]);
 
   // 3rd party dependencies.
