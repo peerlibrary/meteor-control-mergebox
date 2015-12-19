@@ -14,10 +14,10 @@ Meteor.publish = (name, publishFunction) ->
 
         originalSessionDocumentView = collectionView.documents[stringId]
 
-        # Make sure we start with a clean slate for this document ID.
-        delete collectionView.documents[stringId]
-
         try
+          # Make sure we start with a clean slate for this document ID.
+          delete collectionView.documents[stringId]
+
           originalAdded.call @, collectionName, id, fields
         finally
           if originalSessionDocumentView
@@ -34,15 +34,15 @@ Meteor.publish = (name, publishFunction) ->
 
         originalSessionDocumentView = collectionView.documents[stringId]
 
-        # Create an empty session document for this id.
-        collectionView.documents[id] = new DDPServer._SessionDocumentView()
-
-        # For fields which are being cleared we have to mock some existing
-        # value otherwise change will not be send to the client.
-        for field, value of fields when value is undefined
-          collectionView.documents[id].dataByKey[field] = [subscriptionHandle: @_subscriptionHandle, value: null]
-
         try
+          # Create an empty session document for this id.
+          collectionView.documents[id] = new DDPServer._SessionDocumentView()
+
+          # For fields which are being cleared we have to mock some existing
+          # value otherwise change will not be send to the client.
+          for field, value of fields when value is undefined
+            collectionView.documents[id].dataByKey[field] = [subscriptionHandle: @_subscriptionHandle, value: null]
+
           originalChanged.call @, collectionName, id, fields
         finally
           if originalSessionDocumentView
@@ -59,10 +59,10 @@ Meteor.publish = (name, publishFunction) ->
 
         originalSessionDocumentView = collectionView.documents[stringId]
 
-        # Create an empty session document for this id.
-        collectionView.documents[id] = new DDPServer._SessionDocumentView()
-
         try
+          # Create an empty session document for this id.
+          collectionView.documents[id] = new DDPServer._SessionDocumentView()
+
           originalRemoved.call @, collectionName, id
         finally
           if originalSessionDocumentView
