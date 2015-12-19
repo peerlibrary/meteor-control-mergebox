@@ -13,7 +13,7 @@ Package.onUse(function (api) {
     'coffeescript',
     'underscore',
     'mongo',
-    'ddp-server',
+    'ddp',
     'ejson'
   ], 'server');
 
