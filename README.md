@@ -45,6 +45,54 @@ the one with enabled mergebox. So it is important to remember, **with disabled m
 the last document or field change across all subscriptions is always the one propagated to
 the client side**. There is simply no state in subscriptions anymore.
 
+The default way to publish collections is to use
+[`observeChanges`](http://docs.meteor.com/#/full/observe_changes), explicitly or by returning
+a cursor from the publish function. This works well when server uses mergebox because only
+changes are really needed. But if you use multiple subscriptions over the same collection with
+disabled mergebox you might get strange results. For example, one subscription could remove
+a document (which would remove whole document on the client side) and then another subscription
+could change one field, which would result in document being re-added on the client side, but
+just with that one field. To improve this, one could use
+[document-level `observe`](http://docs.meteor.com/#/full/observe):
+
+```javascript
+Meteor.publish('myPublish', function () {
+  var self = this;
+
+  var handle = collection.find({}, {transform: null}).observe({
+    added: function (newDocument) {
+      self.added('testCollection', newDocument._id, _.omit(newDocument, '_id'));
+    },
+
+    changed: function (newDocument, oldDocument) {
+      _.each(oldDocument, function (value, field) {
+        if (!_.has(newDocument, field)) {
+          newDocument[field] = undefined;
+        }
+      });
+
+      self.changed('testCollection', newDocument._id, _.omit(newDocument, '_id'));
+    },
+
+    removed: function (oldDocument) {
+      self.removed('testCollection', oldDocument._id);
+    }
+  });
+
+  self.onStop(function () {
+    handle.stop()
+  });
+
+  self.ready();
+});
+```
+
+But the question is then how much overhead do you gain on the server by using `observe` instead of
+`observeChanges`, because `observe` has to cache documents.
+
+In general it is advisable to not use multiple overlapping (in documents) subscriptions when
+disabling mergebox. Behavior is then predictable and matches the normal Meteor behavior.
+
 Related projects
 ----------------
 

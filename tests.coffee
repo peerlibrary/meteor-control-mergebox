@@ -1,5 +1,5 @@
 if Meteor.isServer
-  TestCollection = new Meteor.Collection null
+  TestCollection = new Mongo.Collection null
 
   Meteor.methods
     insertTest: (obj) ->
@@ -15,7 +15,7 @@ if Meteor.isServer
   Meteor.publish 'testPublish', (disableMergebox, argument) ->
     @disableMergebox() if disableMergebox
 
-    TestCollection.find().observeChanges
+    handle = TestCollection.find().observeChanges
       added: (id, fields) =>
         @added 'testCollection', id, fields
       changed: (id, fields) =>
@@ -23,10 +23,32 @@ if Meteor.isServer
       removed: (id, fields) =>
         @removed 'testCollection', id
 
+    @onStop =>
+      handle.stop()
+
+    @ready()
+
+  # "argument" is used so that we can subscribe multiple times with different arguments.
+  Meteor.publish 'testPublishFullObserve', (argument) ->
+    @disableMergebox()
+
+    handle = TestCollection.find({}, {transform: null}).observe
+      added: (newDocument) =>
+        @added 'testCollection', newDocument._id, _.omit newDocument, '_id'
+      changed: (newDocument, oldDocument) =>
+        for field, value of oldDocument when field not of newDocument
+          newDocument[field] = undefined
+        @changed 'testCollection', newDocument._id, _.omit newDocument, '_id'
+      removed: (oldDocument) =>
+        @removed 'testCollection', oldDocument._id
+
+    @onStop =>
+      handle.stop()
+
     @ready()
 
 else
-  TestCollection = new Meteor.Collection 'testCollection'
+  TestCollection = new Mongo.Collection 'testCollection'
 
 class BasicTestCase extends ClassyTestCase
   @testName: 'disable-mergebox - basic'
@@ -149,6 +171,41 @@ class BasicTestCase extends ClassyTestCase
     ->
       # Only the changed field is published.
       @assertEqual TestCollection.find().fetch(), [{_id: @document1Id, foo: 'test2'}]
+  ]
+
+  testClientMultipleSubscriptionsFullObserve: [
+    ->
+      @subscription = @assertSubscribeSuccessful 'testPublishFullObserve', 1, @expect()
+      @assertSubscribeSuccessful 'testPublishFullObserve', 2, @expect()
+  ,
+    ->
+      @assertEqual TestCollection.find().fetch(), []
+
+      Meteor.call 'insertTest', {foo: 'test', bar: 123}, @expect (error, documentId) =>
+        @assertFalse error, error
+        @assertTrue documentId
+
+        @document1Id = documentId
+  ,
+    ->
+      @assertEqual TestCollection.find().fetch(), [{_id: @document1Id, foo: 'test', bar: 123}]
+
+      @subscription.stop()
+
+      # To wait a bit for unsubscribe to happen.
+      Meteor.setTimeout @expect(), 10 # ms
+  ,
+    ->
+      # Last change wins, document has been removed.
+      @assertEqual TestCollection.find().fetch(), []
+
+      Meteor.call 'updateTest', {_id: @document1Id}, {$set: {foo: 'test2'}}, @expect (error, count) =>
+        @assertFalse error, error
+        @assertEqual count, 1
+  ,
+    ->
+      # With full observe all fields are published.
+      @assertEqual TestCollection.find().fetch(), [{_id: @document1Id, foo: 'test2', bar: 123}]
   ]
 
 ClassyTestCase.addTest new BasicTestCase()

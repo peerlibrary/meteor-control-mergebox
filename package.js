@@ -37,7 +37,8 @@ Package.onTest(function (api) {
   // Core dependencies.
   api.use([
     'coffeescript',
-    'underscore'
+    'underscore',
+    'mongo'
   ]);
 
   // Internal dependencies.
