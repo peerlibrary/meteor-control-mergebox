@@ -7,7 +7,11 @@ originalRegisterStore = Connection::registerStore
 Connection::registerStore = (name, wrappedStore) ->
   originalUpdate = wrappedStore.update
   wrappedStore.update = (msg) ->
-    collection = allCollections[name]
+    # TODO: Pending this pull request: https://github.com/meteor/meteor/pull/5845
+    if wrappedStore._getCollection
+      collection = wrappedStore._getCollection()
+    else
+      collection = allCollections[name]
 
     # We might still not have a collection for packages defining collections before
     # this package is loaded. But this is OK because those are packages which do not
@@ -16,7 +20,7 @@ Connection::registerStore = (name, wrappedStore) ->
     return originalUpdate.call @, msg unless collection
 
     mongoId = MongoID.idParse msg.id
-    doc = collection.findOne mongoId
+    doc = collection._collection.findOne mongoId
 
     # If a document is being added, but already exists, just change it.
     if msg.msg is 'added' and doc
@@ -41,6 +45,6 @@ Connection::registerStore = (name, wrappedStore) ->
 originalDefineMutationMethods = Mongo.Collection::_defineMutationMethods
 Mongo.Collection::_defineMutationMethods = ->
   if @_connection and @_connection.registerStore
-    allCollections[@_name] = @_collection
+    allCollections[@_name] = @
 
   originalDefineMutationMethods.call @
