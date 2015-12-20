@@ -14,18 +14,23 @@ Package.onUse(function (api) {
     'underscore',
     'mongo',
     'ddp',
-    'ejson'
-  ], 'server');
+    'ejson',
+    'mongo-id'
+  ]);
 
   // 3rd party dependencies.
   api.use([
     'peerlibrary:fiber-utils@0.6.0'
-  ], 'server');
+  ]);
 
   api.addFiles([
     'livedata_server.js',
     'server.coffee'
   ], 'server');
+
+  api.addFiles([
+    'client.coffee'
+  ], 'client');
 });
 
 Package.onTest(function (api) {
