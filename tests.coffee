@@ -11,7 +11,8 @@ if Meteor.isServer
     removeTest: (selector) ->
       TestCollection.remove selector
 
-  Meteor.publish 'testPublish', (disableMergebox) ->
+  # "argument" is used so that we can subscribe multiple times with different arguments.
+  Meteor.publish 'testPublish', (disableMergebox, argument) ->
     @disableMergebox() if disableMergebox
 
     TestCollection.find().observeChanges
@@ -29,6 +30,9 @@ else
 
 class BasicTestCase extends ClassyTestCase
   @testName: 'disable-mergebox - basic'
+
+  setUpServer: ->
+    TestCollection.remove {}
 
   @publishTest: (disableMergebox) ->
     [
@@ -111,5 +115,40 @@ class BasicTestCase extends ClassyTestCase
   testClientMergeboxDisabled: @publishTest true
 
   testClientMergeboxNotDisabled: @publishTest false
+
+  testClientMultipleSubscriptions: [
+    ->
+      @subscription = @assertSubscribeSuccessful 'testPublish', true, 1, @expect()
+      @assertSubscribeSuccessful 'testPublish', true, 2, @expect()
+  ,
+    ->
+      @assertEqual TestCollection.find().fetch(), []
+
+      Meteor.call 'insertTest', {foo: 'test', bar: 123}, @expect (error, documentId) =>
+        @assertFalse error, error
+        @assertTrue documentId
+
+        @document1Id = documentId
+  ,
+    ->
+      @assertEqual TestCollection.find().fetch(), [{_id: @document1Id, foo: 'test', bar: 123}]
+
+      @subscription.stop()
+
+      # To wait a bit for unsubscribe to happen.
+      Meteor.setTimeout @expect(), 10 # ms
+  ,
+    ->
+      # Last change wins, document has been removed.
+      @assertEqual TestCollection.find().fetch(), []
+
+      Meteor.call 'updateTest', {_id: @document1Id}, {$set: {foo: 'test2'}}, @expect (error, count) =>
+        @assertFalse error, error
+        @assertEqual count, 1
+  ,
+    ->
+      # Only the changed field is published.
+      @assertEqual TestCollection.find().fetch(), [{_id: @document1Id, foo: 'test2'}]
+  ]
 
 ClassyTestCase.addTest new BasicTestCase()
