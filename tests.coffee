@@ -43,12 +43,20 @@ class BasicTestCase extends ClassyTestCase
 
         @document1Id = documentId
   ,
+    @runOnServer ->
+      for sessionId, session of Meteor.server.sessions
+        @assertEqual session.getCollectionView('testCollection').documents, {}
+  ,
     ->
       @assertEqual TestCollection.find().fetch(), [{_id: @document1Id, foo: 'test', bar: 123}]
 
       Meteor.call 'updateTest', {_id: @document1Id}, {$set: {foo: 'test2'}}, @expect (error, count) =>
         @assertFalse error, error
         @assertEqual count, 1
+  ,
+    @runOnServer ->
+      for sessionId, session of Meteor.server.sessions
+        @assertEqual session.getCollectionView('testCollection').documents, {}
   ,
     ->
       @assertEqual TestCollection.find().fetch(), [{_id: @document1Id, foo: 'test2', bar: 123}]
@@ -57,6 +65,10 @@ class BasicTestCase extends ClassyTestCase
         @assertFalse error, error
         @assertEqual count, 1
   ,
+    @runOnServer ->
+      for sessionId, session of Meteor.server.sessions
+        @assertEqual session.getCollectionView('testCollection').documents, {}
+  ,
     ->
       @assertEqual TestCollection.find().fetch(), [{_id: @document1Id, bar: 123}]
 
@@ -64,12 +76,20 @@ class BasicTestCase extends ClassyTestCase
         @assertFalse error, error
         @assertEqual count, 1
   ,
+    @runOnServer ->
+      for sessionId, session of Meteor.server.sessions
+        @assertEqual session.getCollectionView('testCollection').documents, {}
+  ,
     ->
       @assertEqual TestCollection.find().fetch(), [{_id: @document1Id, foo: 'test3', bar: 123}]
 
       Meteor.call 'removeTest', {_id: @document1Id}, @expect (error, count) =>
         @assertFalse error, error
         @assertEqual count, 1
+  ,
+    @runOnServer ->
+      for sessionId, session of Meteor.server.sessions
+        @assertEqual session.getCollectionView('testCollection').documents, {}
   ,
     ->
       @assertEqual TestCollection.find().fetch(), []

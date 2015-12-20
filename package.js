@@ -42,7 +42,7 @@ Package.onTest(function (api) {
 
   // 3rd party dependencies.
   api.use([
-    'peerlibrary:classy-test@0.2.19'
+    'peerlibrary:classy-test@0.2.21'
   ]);
 
   api.add_files([
