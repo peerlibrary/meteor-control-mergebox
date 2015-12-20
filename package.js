@@ -1,12 +1,12 @@
 Package.describe({
   summary: "Control mergebox of publish endpoints",
-  version: '0.1.1',
+  version: '0.1.3',
   name: 'peerlibrary:control-mergebox',
   git: 'https://github.com/peerlibrary/meteor-control-mergebox.git'
 });
 
 Package.onUse(function (api) {
-  api.versionsFrom('METEOR@1.0.3.1');
+  api.versionsFrom('METEOR@1.2.1');
 
   // Core dependencies.
   api.use([
