@@ -20,7 +20,7 @@ if Meteor.isServer
         @added 'testCollection', id, fields
       changed: (id, fields) =>
         @changed 'testCollection', id, fields
-      removed: (id, fields) =>
+      removed: (id) =>
         @removed 'testCollection', id
 
     @onStop =>
