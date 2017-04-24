@@ -1,8 +1,7 @@
 guardObject = {}
 
-originalPublish = Meteor.publish
-Meteor.publish = (name, publishFunction) ->
-  originalPublish name, (args...) ->
+extendPublish (name, publishFunction, options) ->
+  newPublishFunction = (args...) ->
     publish = @
 
     disabled = false
@@ -82,3 +81,5 @@ Meteor.publish = (name, publishFunction) ->
             delete collectionView.documents[stringId]
 
     publishFunction.apply publish, args
+
+  [name, newPublishFunction, options]

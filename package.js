@@ -20,8 +20,9 @@ Package.onUse(function (api) {
 
   // 3rd party dependencies.
   api.use([
-    'peerlibrary:fiber-utils@0.6.0'
-  ]);
+    'peerlibrary:fiber-utils@0.6.0',
+    'peerlibrary:extend-publish@0.3.0'
+  ], 'server');
 
   api.addFiles([
     'livedata_server.js',
