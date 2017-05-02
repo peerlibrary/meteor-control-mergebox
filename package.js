@@ -6,7 +6,7 @@ Package.describe({
 });
 
 Package.onUse(function (api) {
-  api.versionsFrom('METEOR@1.2.1');
+  api.versionsFrom('METEOR@1.3.4.4');
 
   // Core dependencies.
   api.use([
@@ -21,7 +21,7 @@ Package.onUse(function (api) {
   // 3rd party dependencies.
   api.use([
     'peerlibrary:fiber-utils@0.6.0',
-    'peerlibrary:extend-publish@0.3.0'
+    'peerlibrary:extend-publish@0.4.0'
   ], 'server');
 
   api.addFiles([
@@ -35,6 +35,8 @@ Package.onUse(function (api) {
 });
 
 Package.onTest(function (api) {
+  api.versionsFrom('METEOR@1.3.4.4');
+
   // Core dependencies.
   api.use([
     'coffeescript',
@@ -49,7 +51,7 @@ Package.onTest(function (api) {
 
   // 3rd party dependencies.
   api.use([
-    'peerlibrary:classy-test@0.2.23'
+    'peerlibrary:classy-test@0.2.26'
   ]);
 
   api.add_files([
