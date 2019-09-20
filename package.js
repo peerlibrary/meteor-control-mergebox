@@ -1,16 +1,16 @@
 Package.describe({
   summary: "Control mergebox of publish endpoints",
-  version: '0.3.0',
+  version: '0.4.0',
   name: 'peerlibrary:control-mergebox',
   git: 'https://github.com/peerlibrary/meteor-control-mergebox.git'
 });
 
 Package.onUse(function (api) {
-  api.versionsFrom('METEOR@1.3.4.4');
+  api.versionsFrom('METEOR@1.8.1');
 
   // Core dependencies.
   api.use([
-    'coffeescript',
+    'coffeescript@2.4.1',
     'underscore',
     'mongo',
     'ddp',
@@ -20,12 +20,11 @@ Package.onUse(function (api) {
 
   // 3rd party dependencies.
   api.use([
-    'peerlibrary:fiber-utils@0.6.0',
-    'peerlibrary:extend-publish@0.4.0'
+    'peerlibrary:fiber-utils@0.10.0',
+    'peerlibrary:extend-publish@0.6.0'
   ], 'server');
 
   api.addFiles([
-    'livedata_server.js',
     'server.coffee'
   ], 'server');
 
@@ -35,11 +34,11 @@ Package.onUse(function (api) {
 });
 
 Package.onTest(function (api) {
-  api.versionsFrom('METEOR@1.3.4.4');
+  api.versionsFrom('METEOR@1.8.1');
 
   // Core dependencies.
   api.use([
-    'coffeescript',
+    'coffeescript@2.4.1',
     'underscore',
     'mongo'
   ]);
@@ -51,7 +50,7 @@ Package.onTest(function (api) {
 
   // 3rd party dependencies.
   api.use([
-    'peerlibrary:classy-test@0.2.26'
+    'peerlibrary:classy-test@0.4.0'
   ]);
 
   api.add_files([

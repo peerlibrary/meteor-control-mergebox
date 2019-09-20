@@ -158,7 +158,7 @@ class BasicTestCase extends ClassyTestCase
       @subscription.stop()
 
       # To wait a bit for unsubscribe to happen.
-      Meteor.setTimeout @expect(), 10 # ms
+      Meteor.setTimeout @expect(), 100 # ms
   ,
     ->
       # Last change wins, document has been removed.
@@ -193,7 +193,7 @@ class BasicTestCase extends ClassyTestCase
       @subscription.stop()
 
       # To wait a bit for unsubscribe to happen.
-      Meteor.setTimeout @expect(), 10 # ms
+      Meteor.setTimeout @expect(), 100 # ms
   ,
     ->
       # Last change wins, document has been removed.

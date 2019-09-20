@@ -1,5 +1,3 @@
-allCollections = {}
-
 Connection = Meteor.connection.constructor
 
 # We patch registerStore to intercept messages and modify them to not throw errors.
@@ -7,11 +5,7 @@ originalRegisterStore = Connection::registerStore
 Connection::registerStore = (name, wrappedStore) ->
   originalUpdate = wrappedStore.update
   wrappedStore.update = (msg) ->
-    # TODO: Pending this pull request: https://github.com/meteor/meteor/pull/5845
-    if wrappedStore._getCollection
-      collection = wrappedStore._getCollection()
-    else
-      collection = allCollections[name]
+    collection = wrappedStore._getCollection?()
 
     # We might still not have a collection for packages defining collections before
     # this package is loaded. But this is OK because those are packages which do not
@@ -20,7 +14,7 @@ Connection::registerStore = (name, wrappedStore) ->
     return originalUpdate.call @, msg unless collection
 
     mongoId = MongoID.idParse msg.id
-    doc = collection._collection.findOne mongoId
+    doc = collection._collection._docs.get mongoId
 
     # If a document is being added, but already exists, just change it.
     if msg.msg is 'added' and doc
@@ -39,12 +33,3 @@ Connection::registerStore = (name, wrappedStore) ->
     originalUpdate.call @, msg
 
   originalRegisterStore.call @, name, wrappedStore
-
-# We misuse defineMutationMethods to hook into the Mongo.Collection
-# constructor and retrieve collection's instance.
-originalDefineMutationMethods = Mongo.Collection::_defineMutationMethods
-Mongo.Collection::_defineMutationMethods = ->
-  if @_connection and @_connection.registerStore
-    allCollections[@_name] = @
-
-  originalDefineMutationMethods.call @
