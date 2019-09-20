@@ -11,9 +11,9 @@ extendPublish (name, publishFunction, options) ->
 
     originalAdded = publish.added
     publish.added = (collectionName, id, fields) ->
-      stringId = @_idFilter.idStringify id
-
       return originalAdded.call @, collectionName, id, fields unless disabled
+
+      stringId = @_idFilter.idStringify id
 
       FiberUtils.synchronize guardObject, "#{collectionName}$#{stringId}", =>
         collectionView = @_session.getCollectionView collectionName
@@ -48,12 +48,11 @@ extendPublish (name, publishFunction, options) ->
 
     originalChanged = publish.changed
     publish.changed = (collectionName, id, fields) ->
-      stringId = @_idFilter.idStringify id
-
       return originalChanged.call @, collectionName, id, fields unless disabled
 
-      FiberUtils.synchronize guardObject, "#{collectionName}$#{stringId}", =>
+      stringId = @_idFilter.idStringify id
 
+      FiberUtils.synchronize guardObject, "#{collectionName}$#{stringId}", =>
         collectionView = @_session.getCollectionView collectionName
 
         if collectionView.documents instanceof Map
@@ -96,9 +95,9 @@ extendPublish (name, publishFunction, options) ->
 
     originalRemoved = publish.removed
     publish.removed = (collectionName, id) ->
-      stringId = @_idFilter.idStringify id
-
       return originalRemoved.call @, collectionName, id unless disabled
+
+      stringId = @_idFilter.idStringify id
 
       FiberUtils.synchronize guardObject, "#{collectionName}$#{stringId}", =>
         collectionView = @_session.getCollectionView collectionName
