@@ -1,6 +1,8 @@
 control-mergebox
 ================
 
+UPDATE: This is now available in [Meteor core](https://docs.meteor.com/api/pubsub.html#Publication-strategies).
+
 This Meteor smart package extends [publish endpoints](http://docs.meteor.com/#/full/meteor_publish)
 with control of the [mergebox](https://meteorhacks.com/understanding-mergebox) for a given
 publish endpoint function.
